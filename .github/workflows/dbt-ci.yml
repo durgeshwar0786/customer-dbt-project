@@ -77,3 +77,55 @@ jobs:
 
       - name: Run dbt models and tests
         run: dbt build --target dev
+
+    dbt-prod:
+    name: Deploy dbt to Snowflake PROD
+    needs: dbt-ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt Snowflake
+        run: pip install dbt-snowflake==1.12.1
+
+      - name: Create production profiles.yml
+        env:
+          DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
+          DBT_USER: ${{ secrets.DBT_USER }}
+          DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+          DBT_PROD_ROLE: ${{ secrets.DBT_PROD_ROLE }}
+          DBT_PROD_WAREHOUSE: ${{ secrets.DBT_PROD_WAREHOUSE }}
+          DBT_PROD_DATABASE: ${{ secrets.DBT_PROD_DATABASE }}
+          DBT_PROD_SCHEMA: ${{ secrets.DBT_PROD_SCHEMA }}
+        run: |
+          mkdir -p ~/.dbt
+
+          cat > ~/.dbt/profiles.yml <<EOF
+          customer_dbt_project:
+            target: prod
+            outputs:
+              prod:
+                type: snowflake
+                account: "${DBT_ACCOUNT}"
+                user: "${DBT_USER}"
+                password: "${DBT_PASSWORD}"
+                role: "${DBT_PROD_ROLE}"
+                warehouse: "${DBT_PROD_WAREHOUSE}"
+                database: "${DBT_PROD_DATABASE}"
+                schema: "${DBT_PROD_SCHEMA}"
+                threads: 4
+          EOF
+
+      - name: Validate production connection
+        run: dbt debug --target prod
+
+      - name: Deploy dbt models to PROD
+        run: dbt build --target prod
