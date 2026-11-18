@@ -17,6 +17,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+            - name: Validate Snowflake account identifier
+        env:
+          DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
+        run: |
+          if [ -z "$DBT_ACCOUNT" ]; then
+            echo "ERROR: DBT_ACCOUNT is empty"
+            exit 1
+          fi
+
+          if [[ "$DBT_ACCOUNT" =~ [^a-zA-Z0-9_.-] ]]; then
+            echo "ERROR: DBT_ACCOUNT contains invalid characters"
+            exit 1
+          fi
+
+          echo "DBT_ACCOUNT format is valid"
       - name: Checkout repository
         uses: actions/checkout@v4
 
