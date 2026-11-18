@@ -1,0 +1,30 @@
+
+
+SELECT
+    CUSTOMER_ID,
+    CUSTOMER_NAME,
+    CITY,
+
+    COUNT(ORDER_ID) AS TOTAL_ORDERS,
+
+    SUM(
+        CASE
+            WHEN ORDER_STATUS = 'COMPLETED'
+            THEN ORDER_AMOUNT
+            ELSE 0
+        END
+    ) AS TOTAL_COMPLETED_AMOUNT,
+
+    COUNT(
+        CASE
+            WHEN ORDER_STATUS = 'COMPLETED'
+            THEN 1
+        END
+    ) AS COMPLETED_ORDERS
+
+FROM {{ ref('customer_orders') }}
+
+GROUP BY
+    CUSTOMER_ID,
+    CUSTOMER_NAME,
+    CITY

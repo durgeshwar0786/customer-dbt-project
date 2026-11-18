@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw_customer_data
+    database: RAW_DB
+    schema: CUSTOMER_SCHEMA
+
+    tables:
+      - name: CUSTOMERS
+      - name: ORDERS

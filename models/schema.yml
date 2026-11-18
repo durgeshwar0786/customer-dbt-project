@@ -1,0 +1,35 @@
+
+version: 2
+
+models:
+
+  - name: stg_customers
+    description: "Customer staging model"
+
+    columns:
+      - name: CUSTOMER_ID
+        data_tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    description: "Order staging model"
+
+    columns:
+      - name: ORDER_ID
+        data_tests:
+          - unique
+          - not_null
+
+      - name: CUSTOMER_ID
+        data_tests:
+          - not_null
+
+  - name: customer_summary
+    description: "Gold customer summary"
+
+    columns:
+      - name: CUSTOMER_ID
+        data_tests:
+          - unique
+          - not_null
