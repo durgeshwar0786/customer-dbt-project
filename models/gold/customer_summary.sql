@@ -1,5 +1,3 @@
-
-
 SELECT
     CUSTOMER_ID,
     CUSTOMER_NAME,
@@ -20,7 +18,9 @@ SELECT
             WHEN ORDER_STATUS = 'COMPLETED'
             THEN 1
         END
-    ) AS COMPLETED_ORDERS
+    ) AS COMPLETED_ORDERS,
+
+    ROUND(AVG(ORDER_AMOUNT), 2) AS AVG_ORDER_AMOUNT
 
 FROM {{ ref('customer_orders') }}
 
