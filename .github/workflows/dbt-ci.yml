@@ -14,10 +14,11 @@ permissions:
 
 jobs:
   dbt-ci:
+    name: Build and Test dbt DEV
     runs-on: ubuntu-latest
 
     steps:
-            - name: Validate Snowflake account identifier
+      - name: Validate Snowflake account identifier
         env:
           DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
         run: |
@@ -32,6 +33,7 @@ jobs:
           fi
 
           echo "DBT_ACCOUNT format is valid"
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -41,8 +43,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dbt Snowflake
-        run: |
-          pip install dbt-snowflake==1.12.1
+        run: pip install dbt-snowflake==1.12.1
 
       - name: Create dbt profiles.yml
         env:
@@ -55,7 +56,6 @@ jobs:
           DBT_SCHEMA: ${{ secrets.DBT_SCHEMA }}
         run: |
           mkdir -p ~/.dbt
-
           cat > ~/.dbt/profiles.yml <<EOF
           customer_dbt_project:
             target: dev
@@ -78,7 +78,7 @@ jobs:
       - name: Run dbt models and tests
         run: dbt build --target dev
 
-    dbt-prod:
+  dbt-prod:
     name: Deploy dbt to Snowflake PROD
     needs: dbt-ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -107,7 +107,6 @@ jobs:
           DBT_PROD_SCHEMA: ${{ secrets.DBT_PROD_SCHEMA }}
         run: |
           mkdir -p ~/.dbt
-
           cat > ~/.dbt/profiles.yml <<EOF
           customer_dbt_project:
             target: prod
